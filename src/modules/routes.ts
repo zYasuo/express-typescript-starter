@@ -1,28 +1,16 @@
 import { Express } from "express";
 import { TRouteHandler } from "../lib/routes";
 
-export function DefineRoutes(controllers: any, app: Express) {
-    for (let i = 0; i < controllers.length; i++) {
-        const controller = new controllers[i]();
+export function RegisterControllers(app: Express, controllers: any[]) {
+    for (const ControllerClass of controllers) {
+        const instance = new ControllerClass();
+        const baseRoute = Reflect.getMetadata("baseRoute", ControllerClass) || "";
+        const routeHandler: Map<string, Map<string, any[]>> = Reflect.getMetadata("routeHandler", ControllerClass) || new Map();
 
-        const routeHandlers: TRouteHandler = Reflect.getMetadata("routeHandler", controller);
-        const controllerPath = Reflect.getMetadata("baseRoute", controller.constructor);
-        const methods = Array.from(routeHandlers.keys());
-
-        for (let j = 0; j < methods.length; j++) {
-            const method = methods[j];
-            const routes = routeHandlers.get(method);
-
-            if (routes) {
-                const routeNames = Array.from(routes.keys());
-
-                for (let k = 0; k < routeNames.length; k++) {
-                    const handlers = routes.get(routeNames[k]);
-
-                    if (handlers) {
-                        app[method](controllerPath + routeNames[k], handlers);
-                    }
-                }
+        for (const [method, routes] of routeHandler.entries()) {
+            for (const [path, handlers] of routes.entries()) {
+                const fullPath = `${baseRoute}${path}`;
+                (app as any)[method](fullPath, ...handlers.map((fn) => fn.bind(instance)));
             }
         }
     }
