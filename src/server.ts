@@ -1,8 +1,8 @@
 import http from "http";
 import express from "express";
-import { corsHandler } from "./middleware/cors-handler.middleware";
+import { CorsHandler } from "./middleware/cors-handler.middleware";
 import { SERVER_PORT } from "./config/config";
-import { notFoundRouteHandler } from "./middleware/not-found-route.middleware";
+import { NotFoundRouteHandler } from "./middleware/not-found-route.middleware";
 
 export const app = express();
 export let httpServer: ReturnType<typeof http.createServer>;
@@ -10,7 +10,7 @@ export let httpServer: ReturnType<typeof http.createServer>;
 export const MainServer = () => {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
-    app.use(corsHandler);
+    app.use(CorsHandler);
 
     app.get("/main/healthcheck", (req, res) => {
         res.status(200).json({
@@ -19,7 +19,7 @@ export const MainServer = () => {
         });
     });
 
-    app.use(notFoundRouteHandler);
+    app.use(NotFoundRouteHandler);
 
     httpServer = http.createServer(app);
     httpServer.listen(SERVER_PORT, () => {
