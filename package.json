@@ -1,0 +1,27 @@
+{
+  "name": "express-typescript-starter",
+  "version": "1.0.0",
+  "description": "Server application using Express and TypeScript",
+  "main": "src/server.ts",
+  "scripts": {
+    "test": "jest --config jest.config.ts --coverage",
+    "build": "rm -rf build/ && tsc"
+  },
+  "author": "Danilo Aguiar",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
