@@ -13,6 +13,8 @@ estrutura de projeto.
 
 -   ✅ **Express.js 5.1+** - Framework web rápido e minimalista
 -   ✅ **TypeScript** - Tipagem estática para JavaScript
+-   ✅ **Sistema de Decorators** - Controllers e rotas com decorators customizados
+-   ✅ **Reflect Metadata** - Metadados para decorators e injeção de dependência
 -   ✅ **Jest** - Framework de testes com cobertura de código
 -   ✅ **CORS configurado** - Middleware para Cross-Origin Resource Sharing
 -   ✅ **Variáveis de ambiente** - Configuração com dotenv
@@ -28,6 +30,15 @@ express-typescript-starter/
 │   ├── server.ts                          # Arquivo principal do servidor
 │   ├── config/
 │   │   └── config.ts                      # Configurações da aplicação
+│   ├── controllers/
+│   │   └── main.ts                        # Controller principal com decorators
+│   ├── decorators/
+│   │   ├── controller.ts                  # Decorator para controllers
+│   │   └── routes.ts                      # Decorator para rotas
+│   ├── lib/
+│   │   └── routes.ts                      # Tipos para sistema de rotas
+│   ├── modules/
+│   │   └── routes.ts                      # Lógica de definição de rotas
 │   └── middleware/
 │       ├── cors-handler.middleware.ts     # Middleware de CORS
 │       └── not-found-route.middleware.ts  # Middleware 404
@@ -119,7 +130,7 @@ Após executar os testes, abra o arquivo `coverage/lcov-report/index.html` no na
 ### Health Check
 
 ```
-GET /main/healthcheck
+POST /healthcheck
 ```
 
 **Resposta:**
@@ -161,22 +172,66 @@ Qualquer rota não definida retornará:
 
 ## 🔧 Desenvolvimento
 
-### Adicionando novas rotas
+### Sistema de Decorators
 
-1. Edite o arquivo `src/server.ts`
-2. Adicione suas rotas antes do middleware `NotFoundRouteHandler`
+O projeto utiliza um sistema de decorators personalizado para definir controllers e rotas de forma declarativa:
+
+#### Controllers
+
+Use o decorator `@Controller()` para definir um controller:
 
 ```typescript
-app.get("/api/users", (req, res) => {
-    res.json({ users: [] });
-});
+import { Controller } from "../decorators/controller";
+
+@Controller("/api") // Base path opcional
+class ApiController {
+    // métodos do controller
+}
 ```
+
+#### Rotas
+
+Use o decorator `@Routes()` para definir rotas:
+
+```typescript
+import { Routes } from "../decorators/routes";
+import { Request, Response, NextFunction } from "express";
+
+@Controller()
+class MainController {
+    @Routes("post", "/healthcheck")
+    getHealthCheck(req: Request, res: Response, next: NextFunction) {
+        res.status(200).json({
+            hello: "world",
+            message: "Server is running"
+        });
+    }
+}
+```
+
+#### Registrando Controllers
+
+No arquivo `server.ts`, registre os controllers usando `DefineRoutes`:
+
+```typescript
+import MainController from "./controllers/main";
+import { DefineRoutes } from "./modules/routes";
+
+// Registra todos os controllers
+DefineRoutes([MainController], app);
+```
+
+### Adicionando novas rotas
+
+1. Crie um novo controller em `src/controllers/`
+2. Use os decorators `@Controller()` e `@Routes()`
+3. Registre o controller no array de `DefineRoutes` em `server.ts`
 
 ### Adicionando novos middlewares
 
 1. Crie um novo arquivo em `src/middleware/`
 2. Implemente o middleware seguindo o padrão do projeto
-3. Importe e use no `server.ts`
+3. Importe e use no `server.ts` ou como parâmetro no decorator `@Routes()`
 
 ### Configurações adicionais
 

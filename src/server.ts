@@ -1,7 +1,10 @@
+import "reflect-metadata";
 import http from "http";
 import express from "express";
 import { CorsHandler } from "./middleware/cors-handler.middleware";
 import { SERVER_PORT } from "./config/config";
+import MainController from "./controllers/main";
+import { DefineRoutes } from "./modules/routes";
 import { NotFoundRouteHandler } from "./middleware/not-found-route.middleware";
 
 export const app = express();
@@ -11,14 +14,7 @@ export const MainServer = () => {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
     app.use(CorsHandler);
-
-    app.get("/main/healthcheck", (req, res) => {
-        res.status(200).json({
-            hello: "world",
-            message: "Server is running"
-        });
-    });
-
+    DefineRoutes([MainController], app);
     app.use(NotFoundRouteHandler);
 
     httpServer = http.createServer(app);
